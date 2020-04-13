@@ -20,12 +20,27 @@ steps:
 - task: GoTool@0
   inputs:
     version: '1.14.1'
+
 - task: Go@0
   inputs:
     command: 'build'
     workingDirectory: '$(srcDirectory)'
+
 - task: Go@0
   inputs:
     command: 'test'
     arguments: '-v'
     workingDirectory: '$(srcDirectory)'
+
+- task: Docker@2
+  displayName: Build the simple-webserver image
+  inputs:
+    repository: $(imageName)
+    command: build
+    dockerfile: Dockerfile
+    tags: |
+      $(Build.SourceVersion)
+
+- script: |
+    docker image ls
+  displayName: Listing images
