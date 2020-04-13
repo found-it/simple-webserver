@@ -46,9 +46,13 @@ steps:
     docker image ls
   displayName: Listing images
 
+- script: python -m pip install --upgrade pip setuptools wheel
+  displayName: Install tools for Anchore CLI
+
 - script: |
     pip install anchorecli
     export "ANCHORE_CLI_USER=admin"
     export "ANCHORE_CLI_PASS=foobar"
     export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
     anchore-cli system status
+  displayName: Anchore Security Scan
