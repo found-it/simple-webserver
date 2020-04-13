@@ -40,7 +40,7 @@ steps:
   inputs:
     command: buildAndPush
     dockerfile: Dockerfile
-    repository: $(dockerRegistry)
+    repository: '$(dockerRegistry)'
     containerRegistry: $(dockerRegistryServiceConnection)
     tags: |
       $(tag)
