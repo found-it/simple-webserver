@@ -9,6 +9,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  imageName: 'simple-webserver'
+  srcDirectory: '$(System.DefaultWorkingDirectory)/src'
+
 steps:
 - script: echo Hello, James time to test your go!
   displayName: 'Greeting'
@@ -19,9 +23,9 @@ steps:
 - task: Go@0
   inputs:
     command: 'build'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: '$(srcDirectory)'
 - task: Go@0
   inputs:
     command: 'test'
     arguments: '-v'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: '$(srcDirectory)'
