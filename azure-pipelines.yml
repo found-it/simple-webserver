@@ -13,6 +13,7 @@ variables:
   imageName: 'simple-webserver'
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
+  dockerRegistry: 'jpetersenames/simple-webserver'
 
 steps:
 - script: echo Hello, James time to test your go!
@@ -36,9 +37,9 @@ steps:
 - task: Docker@2
   displayName: Build the simple-webserver image
   inputs:
-    repository: $(imageName)
-    command: build
+    command: buildAndPush
     dockerfile: Dockerfile
+    repository: $(dockerRegistry)
     tags: |
       $(tag)
 
@@ -55,6 +56,6 @@ steps:
     export "ANCHORE_CLI_USER=admin"
     export "ANCHORE_CLI_PASS=foobar"
     export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
-    env
-    anchore-cli system status
+    anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
+
   displayName: Anchore Security Scan
