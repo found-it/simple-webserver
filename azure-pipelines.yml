@@ -10,7 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  imageName: 'simple-webserver'
+  dockerRegistry: 'jpetersenames/simple-webserver'
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
@@ -40,7 +40,7 @@ steps:
   inputs:
     command: buildAndPush
     dockerfile: Dockerfile
-    repository: '$(dockerRegistry)'
+    repository: $(dockerRegistry)
     containerRegistry: $(dockerRegistryServiceConnection)
     tags: |
       $(tag)
