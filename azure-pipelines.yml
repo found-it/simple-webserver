@@ -12,6 +12,7 @@ pool:
 variables:
   imageName: 'simple-webserver'
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
+  tag: $(Build.SourceVersion)
 
 steps:
 - script: echo Hello, James time to test your go!
@@ -39,8 +40,15 @@ steps:
     command: build
     dockerfile: Dockerfile
     tags: |
-      $(Build.SourceVersion)
+      $(tag)
 
 - script: |
     docker image ls
   displayName: Listing images
+
+- script: |
+    pip install anchorecli
+    export "ANCHORE_CLI_USER=admin"
+    export "ANCHORE_CLI_PASS=foobar"
+    export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+    anchore-cli system status
