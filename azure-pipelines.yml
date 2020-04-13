@@ -21,7 +21,7 @@ steps:
     command: 'build'
     workingDirectory: '$(System.DefaultWorkingDirectory)'
 - task: Go@0
-  input:
+  inputs:
     command: 'test'
     arguments: '-v'
     workingDirectory: '$(modulePath)'
