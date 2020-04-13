@@ -50,9 +50,11 @@ steps:
   displayName: Install tools for Anchore CLI
 
 - script: |
-    pip install anchorecli
+    pip install --upgrade anchorecli
+    export "PATH=$PATH:/home/vsts/.local/bin"
     export "ANCHORE_CLI_USER=admin"
     export "ANCHORE_CLI_PASS=foobar"
     export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+    env
     anchore-cli system status
   displayName: Anchore Security Scan
