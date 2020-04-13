@@ -13,7 +13,8 @@ variables:
   imageName: 'simple-webserver'
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
-  dockerRegistry: 'jpetersenames/simple-webserver'
+  dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
+
 
 steps:
 - script: echo Hello, James time to test your go!
@@ -40,6 +41,7 @@ steps:
     command: buildAndPush
     dockerfile: Dockerfile
     repository: $(dockerRegistry)
+    containerRegistry: $(dockerRegistryServiceConnection)
     tags: |
       $(tag)
 
