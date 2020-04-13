@@ -20,20 +20,20 @@ steps:
 - script: echo Hello, James time to test your go!
   displayName: 'Greeting'
 
-- task: GoTool@0
-  inputs:
-    version: '1.14.1'
-
-- task: Go@0
-  inputs:
-    command: 'build'
-    workingDirectory: '$(srcDirectory)'
-
-- task: Go@0
-  inputs:
-    command: 'test'
-    arguments: '-v'
-    workingDirectory: '$(srcDirectory)'
+# - task: GoTool@0
+#   inputs:
+#     version: '1.14.1'
+#
+# - task: Go@0
+#   inputs:
+#     command: 'build'
+#     workingDirectory: '$(srcDirectory)'
+#
+# - task: Go@0
+#   inputs:
+#     command: 'test'
+#     arguments: '-v'
+#     workingDirectory: '$(srcDirectory)'
 
 - task: Docker@2
   displayName: Build the simple-webserver image
@@ -58,6 +58,15 @@ steps:
     export "ANCHORE_CLI_USER=admin"
     export "ANCHORE_CLI_PASS=foobar"
     export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+    echo "*********************"
     anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
+    echo "*********************"
+    anchore-cli image wait "$(dockerRegistry):$(tag)"
+    echo "*********************"
+    anchore-cli image content "$(dockerRegistry):$(tag)" os
+    echo "*********************"
+    anchore-cli image vuln "$(dockerRegistry):$(tag)" all
+    echo "*********************"
+    anchore-cli evaluate check "$(dockerRegistry):$(tag)"
 
   displayName: Anchore Security Scan
