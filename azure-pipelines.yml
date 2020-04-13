@@ -10,10 +10,18 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, James!
-  displayName: 'Run a one-line script'
+- script: echo Hello, James time to test your go!
+  displayName: 'Greeting'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    go test
-  displayName: 'Test the server functions'
+- task: GoTool@0
+  inputs:
+    version: '1.14.1'
+- task: Go@0
+  inputs:
+    command: 'build'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+- task: Go@0
+  input:
+    command: 'test'
+    arguments: '-v'
+    workingDirectory: '$(modulePath)'
