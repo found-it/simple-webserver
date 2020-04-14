@@ -21,7 +21,7 @@ stages:
 - stage: Golang
   displayName: CI for Go
   jobs:
-  - job: Build and Test
+  - job: Golang
     displayName: Build and Test Go
     steps:
     - task: GoTool@0
@@ -43,7 +43,7 @@ stages:
 - stage: Docker
   displayName: Build and Push Docker
   jobs:
-  - job: Build and Push
+  - job: Docker
     displayName: Build and Push Docker
     steps:
     - task: Docker@2
@@ -60,10 +60,10 @@ stages:
         docker image ls
       displayName: Listing images
 
-- stage: Security
+- stage: Anchore
   displayName: Anchore Security Scan
   jobs:
-  - job: Security Scan
+  - job: Anchore
     displayName: Anchore Security Scan
     steps:
     - script: python -m pip install --upgrade pip setuptools wheel
