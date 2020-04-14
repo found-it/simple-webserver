@@ -47,6 +47,11 @@ stages:
   - job: Docker
     displayName: Build and Push Docker
     steps:
+    - script: |
+        docker pull hadolint/hadolint
+        docker run --rm -i hadolint/hadolint < Dockerfile
+      displayName: Lint the Dockerfile
+
     - task: Docker@2
       displayName: Build the simple-webserver image
       inputs:
@@ -79,22 +84,22 @@ stages:
       displayName: Configure Anchore Security Scan
 
     - script: |
-        anchore-cli image add "$(dockerRegistry)$(tag)" --dockerfile=Dockerfile
+        anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
         # anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
       displayName: Add image
 
     - script: |
-        anchore-cli image wait "$(dockerRegistry)$(tag)"
+        anchore-cli image wait "$(dockerRegistry):$(tag)"
       displayName: Wait for image
 
     - script: |
-        anchore-cli image content "$(dockerRegistry)$(tag)" os
+        anchore-cli image content "$(dockerRegistry):$(tag)" os
       displayName: List content of image
 
     - script: |
-        anchore-cli image vuln "$(dockerRegistry)$(tag)" all
+        anchore-cli image vuln "$(dockerRegistry):$(tag)" all
       displayName: List vulnerabilities in image
 
     - script: |
-        anchore-cli evaluate check "$(dockerRegistry)$(tag)"
+        anchore-cli evaluate check "$(dockerRegistry):$(tag)"
       displayName: Evaluate image
