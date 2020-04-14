@@ -72,10 +72,14 @@ stages:
 
     - script: |
         pip install --upgrade anchorecli
-        export "PATH=$PATH:/home/vsts/.local/bin"
-        export "ANCHORE_CLI_USER=admin"
-        export "ANCHORE_CLI_PASS=foobar"
-        export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+        echo "##vso[task.setvariable variable=PATH]${PATH}:/home/vsts/.local/bin"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+        # export "PATH=$PATH:/home/vsts/.local/bin"
+        # export "ANCHORE_CLI_USER=admin"
+        # export "ANCHORE_CLI_PASS=foobar"
+        # export "ANCHORE_CLI_URL="
       displayName: Configure Anchore Security Scan
 
     - script: |
