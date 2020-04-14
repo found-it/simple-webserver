@@ -76,29 +76,25 @@ stages:
         echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
         echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
         echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
-        # export "PATH=$PATH:/home/vsts/.local/bin"
-        # export "ANCHORE_CLI_USER=admin"
-        # export "ANCHORE_CLI_PASS=foobar"
-        # export "ANCHORE_CLI_URL="
       displayName: Configure Anchore Security Scan
 
     - script: |
-        anchore-cli image add "$(image)"
+        anchore-cli image add "$(dockerRegistry)$(tag)" --dockerfile=Dockerfile
         # anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
       displayName: Add image
 
     - script: |
-        anchore-cli image wait "$(image)"
+        anchore-cli image wait "$(dockerRegistry)$(tag)"
       displayName: Wait for image
 
     - script: |
-        anchore-cli image content "$(image)" os
+        anchore-cli image content "$(dockerRegistry)$(tag)" os
       displayName: List content of image
 
     - script: |
-        anchore-cli image vuln "$(image)" all
+        anchore-cli image vuln "$(dockerRegistry)$(tag)" all
       displayName: List vulnerabilities in image
 
     - script: |
-        anchore-cli evaluate check "$(image)"
+        anchore-cli evaluate check "$(dockerRegistry)$(tag)"
       displayName: Evaluate image
