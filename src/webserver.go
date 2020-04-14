@@ -1,3 +1,7 @@
+/*
+ *
+ *  Simple Webserver that serves stuff
+ */
 package main
 
 import (
@@ -9,17 +13,22 @@ import (
     "sync"
 )
 
-
+// Globals
 var cnt int
 var mutex = &sync.Mutex{}
 
-
+/*
+ *  Increment function used for testing
+ */
 func Increment(a *int) int {
     *a++
     return *a
 }
 
 
+/*
+ *  Callback for /increment
+ */
 func incrementCounter(w http.ResponseWriter, r *http.Request) {
     mutex.Lock()
     Increment(&cnt)
