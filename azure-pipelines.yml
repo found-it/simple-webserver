@@ -14,31 +14,31 @@ variables:
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
-  image: docker.io/library/debian:7
+  image: '$(dockerRegistry):$(tag)'
 
 
 # steps:
 stages:
-# - stage: Golang
-#   displayName: CI for Go
-#   jobs:
-#   - job: Golang
-#     displayName: Build and Test Go
-#     steps:
-#     - task: GoTool@0
-#       inputs:
-#         version: '1.14.1'
-#
-#     - task: Go@0
-#       inputs:
-#         command: 'build'
-#         workingDirectory: '$(srcDirectory)'
-#
-#     - task: Go@0
-#       inputs:
-#         command: 'test'
-#         arguments: '-v'
-#         workingDirectory: '$(srcDirectory)'
+- stage: Golang
+  displayName: CI for Go
+  jobs:
+  - job: Golang
+    displayName: Build and Test Go
+    steps:
+    - task: GoTool@0
+      inputs:
+        version: '1.14.1'
+
+    - task: Go@0
+      inputs:
+        command: 'build'
+        workingDirectory: '$(srcDirectory)'
+
+    - task: Go@0
+      inputs:
+        command: 'test'
+        arguments: '-v'
+        workingDirectory: '$(srcDirectory)'
 
 
 - stage: Docker
