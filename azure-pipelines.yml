@@ -14,6 +14,7 @@ variables:
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
+  image: docker.io/library/debian:7
 
 
 # steps:
@@ -75,15 +76,25 @@ stages:
         export "ANCHORE_CLI_USER=admin"
         export "ANCHORE_CLI_PASS=foobar"
         export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
-        # echo "*********************"
-        # anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
-        # echo "*********************"
-        # anchore-cli image wait "$(dockerRegistry):$(tag)"
-        # echo "*********************"
-        # anchore-cli image content "$(dockerRegistry):$(tag)" os
-        # echo "*********************"
-        # anchore-cli image vuln "$(dockerRegistry):$(tag)" all
-        # echo "*********************"
-        # anchore-cli evaluate check "$(dockerRegistry):$(tag)"
+      displayName: Configure Anchore Security Scan
 
-      displayName: Anchore Security Scan
+    - script: |
+        anchore-cli image add "$(image)"
+        # anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
+      displayName: Add image
+
+    - script: |
+        anchore-cli image wait "$(image)"
+      displayName: Wait for image
+
+    - script: |
+        anchore-cli image content "$(image)" os
+      displayName: List content of image
+
+    - script: |
+        anchore-cli image vuln "$(image)" all
+      displayName: List vulnerabilities in image
+
+    - script: |
+        anchore-cli evaluate check "$(image)"
+      displayName: Evaluate image
