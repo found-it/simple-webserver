@@ -19,26 +19,26 @@ variables:
 
 # steps:
 stages:
-- stage: Golang
-  displayName: CI for Go
-  jobs:
-  - job: Golang
-    displayName: Build and Test Go
-    steps:
-    - task: GoTool@0
-      inputs:
-        version: '1.14.1'
-
-    - task: Go@0
-      inputs:
-        command: 'build'
-        workingDirectory: '$(srcDirectory)'
-
-    - task: Go@0
-      inputs:
-        command: 'test'
-        arguments: '-v'
-        workingDirectory: '$(srcDirectory)'
+# - stage: Golang
+#   displayName: CI for Go
+#   jobs:
+#   - job: Golang
+#     displayName: Build and Test Go
+#     steps:
+#     - task: GoTool@0
+#       inputs:
+#         version: '1.14.1'
+#
+#     - task: Go@0
+#       inputs:
+#         command: 'build'
+#         workingDirectory: '$(srcDirectory)'
+#
+#     - task: Go@0
+#       inputs:
+#         command: 'test'
+#         arguments: '-v'
+#         workingDirectory: '$(srcDirectory)'
 
 
 - stage: Docker
@@ -75,7 +75,7 @@ stages:
         echo "##vso[task.setvariable variable=PATH]${PATH}:/home/vsts/.local/bin"
         echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
         echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
-        echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
         # export "PATH=$PATH:/home/vsts/.local/bin"
         # export "ANCHORE_CLI_USER=admin"
         # export "ANCHORE_CLI_PASS=foobar"
