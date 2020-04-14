@@ -16,57 +16,74 @@ variables:
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
 
 
-steps:
-- script: echo Hello, James time to test your go!
-  displayName: 'Greeting'
+# steps:
+stages:
+- stage: Golang
+  displayName: CI for Go
+  jobs:
+  - job: Build and Test
+    displayName: Build and Test Go
+    steps:
+    - task: GoTool@0
+      inputs:
+        version: '1.14.1'
 
-# - task: GoTool@0
-#   inputs:
-#     version: '1.14.1'
-#
-# - task: Go@0
-#   inputs:
-#     command: 'build'
-#     workingDirectory: '$(srcDirectory)'
-#
-# - task: Go@0
-#   inputs:
-#     command: 'test'
-#     arguments: '-v'
-#     workingDirectory: '$(srcDirectory)'
+    - task: Go@0
+      inputs:
+        command: 'build'
+        workingDirectory: '$(srcDirectory)'
 
-- task: Docker@2
-  displayName: Build the simple-webserver image
-  inputs:
-    command: buildAndPush
-    dockerfile: Dockerfile
-    repository: $(dockerRegistry)
-    containerRegistry: $(dockerRegistryServiceConnection)
-    tags: |
-      $(tag)
+    - task: Go@0
+      inputs:
+        command: 'test'
+        arguments: '-v'
+        workingDirectory: '$(srcDirectory)'
 
-- script: |
-    docker image ls
-  displayName: Listing images
 
-- script: python -m pip install --upgrade pip setuptools wheel
-  displayName: Install tools for Anchore CLI
+- stage: Docker
+  displayName: Build and Push Docker
+  jobs:
+  - job: Build and Push
+    displayName: Build and Push Docker
+    steps:
+    - task: Docker@2
+      displayName: Build the simple-webserver image
+      inputs:
+        command: buildAndPush
+        dockerfile: Dockerfile
+        repository: $(dockerRegistry)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
 
-- script: |
-    pip install --upgrade anchorecli
-    export "PATH=$PATH:/home/vsts/.local/bin"
-    export "ANCHORE_CLI_USER=admin"
-    export "ANCHORE_CLI_PASS=foobar"
-    export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
-    echo "*********************"
-    anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
-    echo "*********************"
-    anchore-cli image wait "$(dockerRegistry):$(tag)"
-    echo "*********************"
-    anchore-cli image content "$(dockerRegistry):$(tag)" os
-    echo "*********************"
-    anchore-cli image vuln "$(dockerRegistry):$(tag)" all
-    echo "*********************"
-    anchore-cli evaluate check "$(dockerRegistry):$(tag)"
+    - script: |
+        docker image ls
+      displayName: Listing images
 
+- stage: Security
   displayName: Anchore Security Scan
+  jobs:
+  - job: Security Scan
+    displayName: Anchore Security Scan
+    steps:
+    - script: python -m pip install --upgrade pip setuptools wheel
+      displayName: Install tools for Anchore CLI
+
+    - script: |
+        pip install --upgrade anchorecli
+        export "PATH=$PATH:/home/vsts/.local/bin"
+        export "ANCHORE_CLI_USER=admin"
+        export "ANCHORE_CLI_PASS=foobar"
+        export "ANCHORE_CLI_URL=http://anchore-testjp.eastus.cloudapp.azure.com:8228/v1"
+        # echo "*********************"
+        # anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
+        # echo "*********************"
+        # anchore-cli image wait "$(dockerRegistry):$(tag)"
+        # echo "*********************"
+        # anchore-cli image content "$(dockerRegistry):$(tag)" os
+        # echo "*********************"
+        # anchore-cli image vuln "$(dockerRegistry):$(tag)" all
+        # echo "*********************"
+        # anchore-cli evaluate check "$(dockerRegistry):$(tag)"
+
+      displayName: Anchore Security Scan
