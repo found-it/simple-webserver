@@ -10,6 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+  stagingDockerRegistry: 'jpetersenames/simple-webserver-staging'
   dockerRegistry: 'jpetersenames/simple-webserver'
   srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
@@ -54,18 +55,14 @@ stages:
       displayName: Lint the Dockerfile
 
     - task: Docker@2
-      displayName: Build the simple-webserver image
+      displayName: Build the simple-webserver image and push to staging
       inputs:
         command: buildAndPush
         dockerfile: Dockerfile
-        repository: $(dockerRegistry)
+        repository: $(stagingDockerRegistry)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
-
-    - script: |
-        docker image ls
-      displayName: Listing images
 
 - stage: Anchore
   displayName: Anchore Security Scan
@@ -85,22 +82,37 @@ stages:
       displayName: Configure Anchore Security Scan
 
     - script: |
-        anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
-        # anchore-cli image add "$(dockerRegistry):$(tag)" --dockerfile=Dockerfile
+        anchore-cli image add "$(stagingDockerRegistry):$(tag)" --dockerfile=Dockerfile
       displayName: Add image
 
     - script: |
-        anchore-cli image wait "$(dockerRegistry):$(tag)"
+        anchore-cli image wait "$(stagingDockerRegistry):$(tag)"
       displayName: Wait for image
 
     - script: |
-        anchore-cli image content "$(dockerRegistry):$(tag)" os
+        anchore-cli image content "$(stagingDockerRegistry):$(tag)" os
       displayName: List content of image
 
     - script: |
-        anchore-cli image vuln "$(dockerRegistry):$(tag)" all
+        anchore-cli image vuln "$(stagingDockerRegistry):$(tag)" all
       displayName: List vulnerabilities in image
 
     - script: |
-        anchore-cli evaluate check "$(dockerRegistry):$(tag)"
+        anchore-cli evaluate check "$(stagingDockerRegistry):$(tag)"
       displayName: Evaluate image
+
+- stage: Production
+  displayName: Push to production
+  jobs:
+  - job: Production
+    displayName: Push to production
+    steps:
+    - task: Docker@2
+      displayName: Push the image to production
+      inputs:
+        command: buildAndPush
+        dockerfile: Dockerfile
+        repository: $(dockerRegistry)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
