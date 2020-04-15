@@ -1,11 +1,15 @@
-FROM golang:alpine
+FROM ubuntu:18.04
 
-RUN apk update && apk add --no-cache git
+RUN apt-get update && \
+    apt-get install -y python3 python3-dev python3-pip nginx && \
+    pip3 install uwsgi
 
-WORKDIR $GOPATH/src/simple-webserver
-COPY ./src/ .
-COPY ./go.mod .
+WORKDIR /app
+COPY . .
 
-RUN go install -v .
+RUN pip3 install -r requirements.txt
 
-ENTRYPOINT ["/go/bin/simple-webserver"]
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+ENTRYPOINT ["env", "FLASK_APP=/app/app.py", "flask", "run"]
