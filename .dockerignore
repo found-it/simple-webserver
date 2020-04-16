@@ -1,0 +1,6 @@
+Dockerfile
+.git
+.gitignore
+azure-pipelines.yml
+README.md
+.golang
