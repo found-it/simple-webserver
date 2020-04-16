@@ -1,7 +1,11 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+#
+#
+# Azure Pipeline for Anchore testing
+#
+# TODO: Use a script to push prebuilt image to production
+#
+#
+#
 
 trigger:
 - master
@@ -107,12 +111,14 @@ stages:
   - job: Production
     displayName: Push to production
     steps:
-    - task: Docker@2
+    - script: |
+        docker tag $(stagingDockerRegistry):$(tag) $(dockerRegistry):$(tag)
+        docker push $(dockerRegistry):$(tag)
       displayName: Push the image to production
-      inputs:
-        command: buildAndPush
-        dockerfile: Dockerfile
-        repository: $(dockerRegistry)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
+      # inputs:
+      #   command: buildAndPush
+      #   dockerfile: Dockerfile
+      #   repository: $(dockerRegistry)
+      #   containerRegistry: $(dockerRegistryServiceConnection)
+      #   tags: |
+      #     $(tag)
