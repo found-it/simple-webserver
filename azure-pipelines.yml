@@ -68,6 +68,9 @@ stages:
         tags: |
           $(tag)
 
+    - script: |
+        docker image ls -a
+
 - stage: Anchore
   displayName: Anchore Security Scan
   jobs:
@@ -111,14 +114,12 @@ stages:
   - job: Production
     displayName: Push to production
     steps:
-    - script: |
-        docker tag $(stagingDockerRegistry):$(tag) $(dockerRegistry):$(tag)
-        docker push $(dockerRegistry):$(tag)
+    - task: Docker@2
       displayName: Push the image to production
-      # inputs:
-      #   command: buildAndPush
-      #   dockerfile: Dockerfile
-      #   repository: $(dockerRegistry)
-      #   containerRegistry: $(dockerRegistryServiceConnection)
-      #   tags: |
-      #     $(tag)
+      inputs:
+        command: buildAndPush
+        dockerfile: Dockerfile
+        repository: $(dockerRegistry)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
