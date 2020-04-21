@@ -32,9 +32,8 @@ stages:
     displayName: Test Application
     steps:
     - script: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install flask
-        python3 app_test.py
+        python -m pip install --upgrade pip setuptools wheel flask
+        python app_test.py
 
 - stage: Docker
   displayName: Build and Push Docker
