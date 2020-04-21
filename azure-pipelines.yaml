@@ -32,8 +32,8 @@ stages:
     displayName: Test Application
     steps:
     - script: |
-        python -m pip install --upgrade pip setuptools wheel flask
-        python app_test.py
+        python3 -m pip install --upgrade pip setuptools wheel flask
+        python3 app_test.py
 
 - stage: Docker
   displayName: Build and Push Docker
@@ -66,11 +66,11 @@ stages:
   - job: Anchore
     displayName: Anchore Security Scan
     steps:
-    - script: python -m pip install --upgrade pip setuptools wheel
+    - script: python3 -m pip install --upgrade pip setuptools wheel
       displayName: Install tools for Anchore CLI
 
     - script: |
-        pip install --upgrade anchorecli
+        pip3 install --upgrade anchorecli
         echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
         echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
         echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
