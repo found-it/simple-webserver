@@ -25,27 +25,16 @@ variables:
 
 # steps:
 stages:
-# - stage: Golang
-#   displayName: CI for Go
-#   jobs:
-#   - job: Golang
-#     displayName: Build and Test Go
-#     steps:
-#     - task: GoTool@0
-#       inputs:
-#         version: '1.14.1'
-#
-#     - task: Go@0
-#       inputs:
-#         command: 'build'
-#         workingDirectory: '$(srcDirectory)'
-#
-#     - task: Go@0
-#       inputs:
-#         command: 'test'
-#         arguments: '-v'
-#         workingDirectory: '$(srcDirectory)'
-
+- stage: Testing
+  displayName: CI for Python
+  jobs:
+  - job: Testing
+    displayName: Test Application
+    steps:
+    - script: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install flask
+        python3 app_test.py
 
 - stage: Docker
   displayName: Build and Push Docker

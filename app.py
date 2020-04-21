@@ -1,25 +1,25 @@
 from flask import Flask
-flsky = Flask(__name__)
+app = Flask(__name__)
 
-@flsky.route('/')
+@app.route('/')
 def homepage():
     return 'Hello!'
 
 i = 0
-@flsky.route('/increment')
+@app.route('/increment')
 def increment():
     global i
     i += 1
     return f'The number is now {i}'
 
-@flsky.route('/blue')
-def hi():
+@app.route('/blue')
+def blue():
     return 'Blue'
 
-@flsky.route('/green')
-def hi():
+@app.route('/green')
+def green():
     return 'Green'
 
 
 if __name__ == '__main__':
-    flsky.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
