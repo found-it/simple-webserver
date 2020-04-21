@@ -33,6 +33,7 @@ stages:
     - script: |
         python3 -m pip install --upgrade pip setuptools wheel
         python3 -m pip install --upgrade flask pylint
+        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
       displayName: Install dependencies
 
     - script: |
