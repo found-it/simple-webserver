@@ -18,7 +18,6 @@ variables:
   image: 'flasky'
   dockerRegistry: 'jpetersenames/$(image)'
   stagingDockerRegistry: '$(dockerRegistry)-staging'
-  # srcDirectory: '$(System.DefaultWorkingDirectory)/src'
   tag: $(Build.SourceVersion)
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
 
@@ -32,8 +31,17 @@ stages:
     displayName: Test Application
     steps:
     - script: |
-        python3 -m pip install --upgrade pip setuptools wheel flask
+        python3 -m pip install --upgrade pip setuptools wheel flask pylint
+      displayName: Install dependencies
+
+    - script: |
         python3 app_test.py
+      displayName: Test the application
+
+    - script: |
+        pylint app.py
+      continueOnError: true
+      displayName: Lint the python app
 
 - stage: Docker
   displayName: Build and Push Docker

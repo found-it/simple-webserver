@@ -1,25 +1,35 @@
-from flask import Flask
-app = Flask(__name__)
+'''
+    Flasky application
 
-@app.route('/')
+    Useful for testing Azure DevOps Pipeline with Anchore
+'''
+from flask import Flask
+APP = Flask(__name__)
+
+
+@APP.route('/')
 def homepage():
+    '''
+        Root route
+    '''
     return 'Hello!'
 
-i = 0
-@app.route('/increment')
-def increment():
-    global i
-    i += 1
-    return f'The number is now {i}'
 
-@app.route('/blue')
+@APP.route('/blue')
 def blue():
+    '''
+        Blue route
+    '''
     return 'Blue'
 
-@app.route('/green')
+
+@APP.route('/green')
 def green():
+    '''
+        Green route
+    '''
     return 'Green'
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    APP.run(debug=True, host='0.0.0.0')
