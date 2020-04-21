@@ -123,4 +123,4 @@ stages:
         repository: $(dockerRegistry)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(tag)
+          latest

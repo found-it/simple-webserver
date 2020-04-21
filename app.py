@@ -12,9 +12,13 @@ def increment():
     i += 1
     return f'The number is now {i}'
 
-@flsky.route('/hi')
+@flsky.route('/blue')
 def hi():
-    return 'Hi there'
+    return 'Blue'
+
+@flsky.route('/green')
+def hi():
+    return 'Green'
 
 
 if __name__ == '__main__':
