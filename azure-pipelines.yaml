@@ -45,11 +45,11 @@ stages:
       continueOnError: true
       displayName: Lint the python app
 
-- stage: Docker
-  displayName: Build and Push Docker
+- stage: Anchore
+  displayName: Scan Docker Image
   jobs:
-  - job: Docker
-    displayName: Build and Push Docker
+  - job: Anchore
+    displayName: Scan Docker Image
     steps:
     - script: |
         docker pull hadolint/hadolint
@@ -57,63 +57,13 @@ stages:
       continueOnError: true
       displayName: Lint the Dockerfile
 
-    # - task: Docker@2
-    #   displayName: Build the simple-webserver image and push to staging
-    #   inputs:
-    #     command: buildAndPush
-    #     dockerfile: Dockerfile
-    #     repository: $(stagingDockerRegistry)
-    #     containerRegistry: $(dockerRegistryServiceConnection)
-    #     tags: |
-    #       $(tag)
-
     - script: |
         docker build -t local/flasky:staging .
-
-    - script: |
-        docker image ls -a
-
-- stage: Anchore
-  displayName: Anchore Security Scan
-  jobs:
-  - job: Anchore
-    displayName: Anchore Security Scan
-    steps:
-    # - script: python3 -m pip install --upgrade pip setuptools wheel
-    #   displayName: Install tools for Anchore CLI
-    #
-    # - script: |
-    #     pip3 install --upgrade anchorecli
-    #     echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
-    #     echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
-    #     echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
-    #     echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1"
-    #   displayName: Configure Anchore Security Scan
 
     - script: |
         docker image ls
         curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- local/flasky:staging .
       displayName: Scan image inline
-
-    # - script: |
-    #     anchore-cli image add "$(stagingDockerRegistry):$(tag)" --dockerfile=Dockerfile
-    #   displayName: Add image
-    #
-    # - script: |
-    #     anchore-cli image wait "$(stagingDockerRegistry):$(tag)"
-    #   displayName: Wait for image
-    #
-    # - script: |
-    #     anchore-cli image content "$(stagingDockerRegistry):$(tag)" os
-    #   displayName: List content of image
-    #
-    # - script: |
-    #     anchore-cli image vuln "$(stagingDockerRegistry):$(tag)" all
-    #   displayName: List vulnerabilities in image
-    #
-    # - script: |
-    #     anchore-cli evaluate check "$(stagingDockerRegistry):$(tag)"
-    #   displayName: Evaluate image
 
 - stage: Production
   displayName: Push to production
