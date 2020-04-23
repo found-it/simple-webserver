@@ -31,7 +31,7 @@ stages:
     displayName: Test Application
     steps:
     - script: |
-        echo "TESTER: $(TESTER)"
+        echo TESTER $(TESTER)
       displayName: Test out variables
 
 #     - script: |
