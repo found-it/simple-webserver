@@ -20,6 +20,9 @@ variables:
   stagingDockerRegistry: '$(dockerRegistry)-staging'
   tag: $(Build.SourceVersion)
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
+  anchore_user: 'admin'
+  anchore_pass: 'foobar'
+  anchore_url: 'http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1'
 
 
 # steps:
@@ -58,11 +61,18 @@ stages:
       displayName: Lint the Dockerfile
 
     - script: |
-        docker build -t local/flasky:staging .
+        docker build -t $(image):local .
+      displayName: Build the local image
 
     - script: |
         docker image ls
-        curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- local/flasky:staging .
+        curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- \
+          analyze \
+          -u $(anchore_user) \
+          -p $(anchore_pass) \
+          -r $(anchore_url) \
+          -f ./Dockerfile \
+          -g $(image):local
       displayName: Scan image inline
 
 - stage: Production
