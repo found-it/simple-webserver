@@ -79,18 +79,19 @@ stages:
   - job: Anchore
     displayName: Anchore Security Scan
     steps:
-    - script: python3 -m pip install --upgrade pip setuptools wheel
-      displayName: Install tools for Anchore CLI
+    # - script: python3 -m pip install --upgrade pip setuptools wheel
+    #   displayName: Install tools for Anchore CLI
+    #
+    # - script: |
+    #     pip3 install --upgrade anchorecli
+    #     echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
+    #     echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
+    #     echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
+    #     echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1"
+    #   displayName: Configure Anchore Security Scan
 
     - script: |
-        pip3 install --upgrade anchorecli
-        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
-        echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
-        echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
-        echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1"
-      displayName: Configure Anchore Security Scan
-
-    - script: |
+        docker image ls
         curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- local/flasky:staging .
       displayName: Scan image inline
 
