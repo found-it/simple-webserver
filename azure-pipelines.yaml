@@ -31,98 +31,101 @@ stages:
     displayName: Test Application
     steps:
     - script: |
-        echo $(TESTER)
-      displayName: Test out variables
+        python3 -m pip install --upgrade pip setuptools wheel
+        python3 -m pip install --upgrade flask pylint
+        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
+      displayName: Install dependencies
 
-#     - script: |
-#         python3 -m pip install --upgrade pip setuptools wheel
-#         python3 -m pip install --upgrade flask pylint
-#         echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
-#       displayName: Install dependencies
-#
-#     - script: |
-#         python3 app_test.py
-#       displayName: Test the application
-#
-#     - script: |
-#         pylint app.py
-#       continueOnError: true
-#       displayName: Lint the python app
-#
-# - stage: Docker
-#   displayName: Build and Push Docker
-#   jobs:
-#   - job: Docker
-#     displayName: Build and Push Docker
-#     steps:
-#     - script: |
-#         docker pull hadolint/hadolint
-#         docker run --rm -i hadolint/hadolint < Dockerfile
-#       continueOnError: true
-#       displayName: Lint the Dockerfile
-#
-#     - task: Docker@2
-#       displayName: Build the simple-webserver image and push to staging
-#       inputs:
-#         command: buildAndPush
-#         dockerfile: Dockerfile
-#         repository: $(stagingDockerRegistry)
-#         containerRegistry: $(dockerRegistryServiceConnection)
-#         tags: |
-#           $(tag)
-#
-#     - script: |
-#         docker image ls -a
-#
-# - stage: Anchore
-#   displayName: Anchore Security Scan
-#   jobs:
-#   - job: Anchore
-#     displayName: Anchore Security Scan
-#     steps:
-#     - script: python3 -m pip install --upgrade pip setuptools wheel
-#       displayName: Install tools for Anchore CLI
-#
-#     - script: |
-#         pip3 install --upgrade anchorecli
-#         echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
-#         echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
-#         echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
-#         echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1"
-#       displayName: Configure Anchore Security Scan
-#
-#     - script: |
-#         anchore-cli image add "$(stagingDockerRegistry):$(tag)" --dockerfile=Dockerfile
-#       displayName: Add image
-#
-#     - script: |
-#         anchore-cli image wait "$(stagingDockerRegistry):$(tag)"
-#       displayName: Wait for image
-#
-#     - script: |
-#         anchore-cli image content "$(stagingDockerRegistry):$(tag)" os
-#       displayName: List content of image
-#
-#     - script: |
-#         anchore-cli image vuln "$(stagingDockerRegistry):$(tag)" all
-#       displayName: List vulnerabilities in image
-#
-#     - script: |
-#         anchore-cli evaluate check "$(stagingDockerRegistry):$(tag)"
-#       displayName: Evaluate image
-#
-# - stage: Production
-#   displayName: Push to production
-#   jobs:
-#   - job: Production
-#     displayName: Push to production
-#     steps:
-#     - task: Docker@2
-#       displayName: Push the image to production
-#       inputs:
-#         command: buildAndPush
-#         dockerfile: Dockerfile
-#         repository: $(dockerRegistry)
-#         containerRegistry: $(dockerRegistryServiceConnection)
-#         tags: |
-#           latest
+    - script: |
+        python3 app_test.py
+      displayName: Test the application
+
+    - script: |
+        pylint app.py
+      continueOnError: true
+      displayName: Lint the python app
+
+- stage: Docker
+  displayName: Build and Push Docker
+  jobs:
+  - job: Docker
+    displayName: Build and Push Docker
+    steps:
+    - script: |
+        docker pull hadolint/hadolint
+        docker run --rm -i hadolint/hadolint < Dockerfile
+      continueOnError: true
+      displayName: Lint the Dockerfile
+
+    # - task: Docker@2
+    #   displayName: Build the simple-webserver image and push to staging
+    #   inputs:
+    #     command: buildAndPush
+    #     dockerfile: Dockerfile
+    #     repository: $(stagingDockerRegistry)
+    #     containerRegistry: $(dockerRegistryServiceConnection)
+    #     tags: |
+    #       $(tag)
+
+    - script: |
+        docker build -t local/flasky:staging .
+
+    - script: |
+        docker image ls -a
+
+- stage: Anchore
+  displayName: Anchore Security Scan
+  jobs:
+  - job: Anchore
+    displayName: Anchore Security Scan
+    steps:
+    - script: python3 -m pip install --upgrade pip setuptools wheel
+      displayName: Install tools for Anchore CLI
+
+    - script: |
+        pip3 install --upgrade anchorecli
+        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_USER]admin"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_PASS]foobar"
+        echo "##vso[task.setvariable variable=ANCHORE_CLI_URL]http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1"
+      displayName: Configure Anchore Security Scan
+
+    - script: |
+        curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- local/flasky:staging .
+      displayName: Scan image inline
+
+    # - script: |
+    #     anchore-cli image add "$(stagingDockerRegistry):$(tag)" --dockerfile=Dockerfile
+    #   displayName: Add image
+    #
+    # - script: |
+    #     anchore-cli image wait "$(stagingDockerRegistry):$(tag)"
+    #   displayName: Wait for image
+    #
+    # - script: |
+    #     anchore-cli image content "$(stagingDockerRegistry):$(tag)" os
+    #   displayName: List content of image
+    #
+    # - script: |
+    #     anchore-cli image vuln "$(stagingDockerRegistry):$(tag)" all
+    #   displayName: List vulnerabilities in image
+    #
+    # - script: |
+    #     anchore-cli evaluate check "$(stagingDockerRegistry):$(tag)"
+    #   displayName: Evaluate image
+
+- stage: Production
+  displayName: Push to production
+  jobs:
+  - job: Production
+    displayName: Push to production
+    steps:
+    - task: Docker@2
+      displayName: Push the image to production
+      inputs:
+        command: buildAndPush
+        dockerfile: Dockerfile
+        repository: $(dockerRegistry)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          latest
