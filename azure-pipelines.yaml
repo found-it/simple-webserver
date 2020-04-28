@@ -66,7 +66,7 @@ stages:
 
     - script: |
         docker image ls
-        curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- \
+        curl -s https://ci-tools.anchore.io/inline_scan-v0.7.0 | bash -s -- \
           analyze \
           -u $(anchore_user) \
           -p $(anchore_pass) \
