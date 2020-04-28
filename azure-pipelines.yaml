@@ -15,10 +15,10 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+  tag: $(Build.SourceVersion)
   image: 'flasky'
   dockerRegistry: 'jpetersenames/$(image)'
   stagingDockerRegistry: '$(dockerRegistry)-staging'
-  tag: $(Build.SourceVersion)
   dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
   anchore_user: 'admin'
   anchore_pass: 'foobar'
@@ -61,7 +61,7 @@ stages:
       displayName: Lint the Dockerfile
 
     - script: |
-        docker build -t $(image):local .
+        docker build -t $(image):$(tag) .
       displayName: Build the local image
 
     - script: |
@@ -72,7 +72,7 @@ stages:
           -p $(anchore_pass) \
           -r $(anchore_url) \
           -f ./Dockerfile \
-          -g $(image):local
+          -g $(image):$(tag)
       displayName: Scan image inline
 
 - stage: Production
@@ -90,3 +90,5 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           latest
+
+# TODO: Deploy the app
