@@ -66,10 +66,10 @@ stages:
       continueOnError: true
       displayName: Lint the python app
 
-- stage: Anchore
+- stage: Evaluate
   displayName: Scan Docker Image
   jobs:
-  - job: Anchore
+  - job: Evaluate
     displayName: Scan Docker Image
     steps:
     - script: |
@@ -103,19 +103,23 @@ stages:
         python -m pip install --upgrade pip setuptools wheel
         pip install --upgrade anchorecli
         echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
+      displayName: Configure anchore-cli
+
+    - script: |
         anchore-cli \
           --u $(anchore_user) \
           --p $(anchorepass) \
           --url $(anchore_url) \
           evaluate check $(image):$(tag)
+      displayName: Evaluate the image
 
-- stage: Production
+- stage: Push
   displayName: Push to production
   dependsOn:
-  - Anchore
+  - Evaluate
   - Testing
   jobs:
-  - job: Production
+  - job: Push
     displayName: Push to production
     steps:
     - task: Docker@2
@@ -133,10 +137,9 @@ stages:
         artifactName: 'manifests'
         path: 'manifests'
 
-# TODO: Deploy the app
 - stage: Deploy
   displayName: Deploy to K8S
-  dependsOn: Production
+  dependsOn: Push
   jobs:
   - deployment: Deploy
     displayName: Deploy to k8s
