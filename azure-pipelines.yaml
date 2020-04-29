@@ -2,9 +2,6 @@
 #
 # Azure Pipeline for Anchore testing
 #
-# TODO: Use a script to push prebuilt image to production
-#
-#
 #
 
 ---
@@ -110,7 +107,7 @@ stages:
           --u $(anchore_user) \
           --p $(anchorepass) \
           --url $(anchore_url) \
-          evaluate check $(image):$(tag)
+          evaluate check localbuild/$(image):$(tag)
       displayName: Evaluate the image
 
 - stage: Push
