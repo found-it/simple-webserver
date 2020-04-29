@@ -100,6 +100,7 @@ stages:
       displayName: Scan image and send to engine
 
     - script: |
+        python -m pip install --upgrade pip setuptools wheel
         pip install --upgrade anchorecli
         echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
         anchore-cli \
@@ -110,7 +111,9 @@ stages:
 
 - stage: Production
   displayName: Push to production
-  # dependsOn: Anchore
+  dependsOn:
+  - Anchore
+  - Testing
   jobs:
   - job: Production
     displayName: Push to production
