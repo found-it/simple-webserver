@@ -63,13 +63,17 @@ stages:
     - script: |
         docker build -t $(image):$(tag) .
       displayName: Build the local image
-
+    - task: AzureKeyVault@1
+      inputs:
+        azureSubscription: 'Pay-As-You-Go(6544ac93-6d33-4c26-9dff-ee38b14570e0)'
+        KeyVaultName: 'anchore-keyvault'
+        SecretsFilter: '*'
     - script: |
         docker image ls
         curl -s https://ci-tools.anchore.io/inline_scan-v0.7.0 | bash -s -- \
           analyze \
           -u $(anchore_user) \
-          -p $(anchore_pass) \
+          -p $(anchorepass) \
           -r $(anchore_url) \
           -f ./Dockerfile \
           -g $(image):$(tag)
