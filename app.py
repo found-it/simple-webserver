@@ -20,7 +20,7 @@ def blue():
     '''
         Blue route
     '''
-    return 'Blue for blue'
+    return 'Blue'
 
 
 @APP.route('/green')
@@ -28,7 +28,7 @@ def green():
     '''
         Green route
     '''
-    return 'Green for dayz'
+    return 'Green'
 
 
 if __name__ == '__main__':
