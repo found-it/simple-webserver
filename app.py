@@ -20,7 +20,7 @@ def blue():
     '''
         Blue route
     '''
-    return 'Blue'
+    return 'Blue for blue'
 
 
 @APP.route('/green')

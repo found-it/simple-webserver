@@ -114,7 +114,8 @@ stages:
         repository: $(dockerRegistry)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          latest
+          $(tag)
+          # latest
 
     - task: PublishPipelineArtifact@1
       inputs:
@@ -158,5 +159,5 @@ stages:
               imagePullSecrets: |
                 $(imagePullSecret)
               containers: |
-                $(dockerRegistry):latest
+                $(dockerRegistry):$(tag)
               kubernetesServiceConnection: $(clusterName)

@@ -33,7 +33,7 @@ class FlaskBookshelfTests(unittest.TestCase):
 
     def test_blue_data(self):
         result = self.APP.get('/blue')
-        self.assertEqual(result.data, b"Blue")
+        self.assertEqual(result.data, b"Blue for blue")
 
     def test_green_status_code(self):
         result = self.APP.get('/green')
