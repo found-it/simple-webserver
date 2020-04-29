@@ -7,16 +7,16 @@ RUN apk update && \
 RUN pip install flask
 #==0.12.2
 
-# RUN addgroup --gid 2323 "flasky" && \
-#     adduser --disabled-password \
-#             --home "/home/flasky" \
-#             --ingroup "flasky" \
-#             --no-create-home \
-#             --uid 2324 \
-#             "flasky"
-#
-# USER flasky
-# WORKDIR /home/flasky
+RUN addgroup --gid 2323 "flasky" && \
+    adduser --disabled-password \
+            --home "/home/flasky" \
+            --ingroup "flasky" \
+            --no-create-home \
+            --uid 2324 \
+            "flasky"
+
+USER flasky
+WORKDIR /home/flasky
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
