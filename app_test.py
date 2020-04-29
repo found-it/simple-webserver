@@ -41,7 +41,7 @@ class FlaskBookshelfTests(unittest.TestCase):
 
     def test_green_data(self):
         result = self.APP.get('/green')
-        self.assertEqual(result.data, b"Green")
+        self.assertEqual(result.data, b"Green for dayz")
 
 
 if __name__ == '__main__':

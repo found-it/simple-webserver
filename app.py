@@ -28,7 +28,7 @@ def green():
     '''
         Green route
     '''
-    return 'Green'
+    return 'Green for dayz'
 
 
 if __name__ == '__main__':
