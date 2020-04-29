@@ -45,59 +45,68 @@ variables:
 
 # steps:
 stages:
-# - stage: Testing
-#   displayName: CI for Python
-#   jobs:
-#   - job: Testing
-#     displayName: Test Application
-#     steps:
-#     - script: |
-#         python3 -m pip install --upgrade pip setuptools wheel
-#         python3 -m pip install --upgrade flask pylint
-#         echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
-#       displayName: Install dependencies
-#
-#     - script: |
-#         python3 app_test.py
-#       displayName: Test the application
-#
-#     - script: |
-#         pylint app.py
-#       continueOnError: true
-#       displayName: Lint the python app
-#
-# - stage: Anchore
-#   displayName: Scan Docker Image
-#   jobs:
-#   - job: Anchore
-#     displayName: Scan Docker Image
-#     steps:
-#     - script: |
-#         docker pull hadolint/hadolint
-#         docker run --rm -i hadolint/hadolint < Dockerfile
-#       continueOnError: true
-#       displayName: Lint the Dockerfile
-#
-#     - script: |
-#         docker build -t $(image):$(tag) .
-#       displayName: Build the local image
-#
-#     # - task: AzureKeyVault@1
-#     #   inputs:
-#     #     azureSubscription: 'Pay-As-You-Go(6544ac93-6d33-4c26-9dff-ee38b14570e0)'
-#     #     KeyVaultName: 'anchore-keyvault'
-#     #     SecretsFilter: '*'
-#
-#     - script: |
-#         docker image ls
-#         curl -s https://ci-tools.anchore.io/inline_scan-v0.7.0 | bash -s -- \
-#           analyze \
-#           -u $(anchore_user) \
-#           -p $(anchorepass) \
-#           -r $(anchore_url) \
-#           -f ./Dockerfile \
-#           -g $(image):$(tag)
-#       displayName: Scan image inline
+- stage: Testing
+  displayName: CI for Python
+  jobs:
+  - job: Testing
+    displayName: Test Application
+    steps:
+    - script: |
+        python3 -m pip install --upgrade pip setuptools wheel
+        python3 -m pip install --upgrade flask pylint
+        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
+      displayName: Install dependencies
+
+    - script: |
+        python3 app_test.py
+      displayName: Test the application
+
+    - script: |
+        pylint app.py
+      continueOnError: true
+      displayName: Lint the python app
+
+- stage: Anchore
+  displayName: Scan Docker Image
+  jobs:
+  - job: Anchore
+    displayName: Scan Docker Image
+    steps:
+    - script: |
+        docker pull hadolint/hadolint
+        docker run --rm -i hadolint/hadolint < Dockerfile
+      continueOnError: true
+      displayName: Lint the Dockerfile
+
+    - script: |
+        docker build -t $(image):$(tag) .
+      displayName: Build the local image
+
+    # - task: AzureKeyVault@1
+    #   inputs:
+    #     azureSubscription: 'Pay-As-You-Go(6544ac93-6d33-4c26-9dff-ee38b14570e0)'
+    #     KeyVaultName: 'anchore-keyvault'
+    #     SecretsFilter: '*'
+
+    - script: |
+        docker image ls
+        curl -s https://ci-tools.anchore.io/inline_scan-v0.7.0 | bash -s -- \
+          analyze \
+          -u $(anchore_user) \
+          -p $(anchorepass) \
+          -r $(anchore_url) \
+          -f ./Dockerfile \
+          -g $(image):$(tag)
+      displayName: Scan image and send to engine
+
+    - script: |
+        pip install --upgrade anchorecli
+        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
+        anchore-cli \
+          --u $(anchore_user) \
+          --p $(anchorepass) \
+          --url $(anchore_url) \
+          evaluate check $(image):$(tag)
 
 - stage: Production
   displayName: Push to production
