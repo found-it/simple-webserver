@@ -15,14 +15,21 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  tag: $(Build.SourceVersion)
-  image: 'flasky'
-  dockerRegistry: 'jpetersenames/$(image)'
-  stagingDockerRegistry: '$(dockerRegistry)-staging'
-  dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
-  anchore_user: 'admin'
-  anchore_pass: 'foobar'
-  anchore_url: 'http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1'
+  - name: tag
+    value: $(Build.SourceVersion)
+  - name: image
+    value: 'flasky'
+  - name: dockerRegistry
+    value: 'jpetersenames/$(image)'
+  - name: stagingDockerRegistry
+    value: '$(dockerRegistry)-staging'
+  - name: dockerRegistryServiceConnection
+    value: 'jpetersenames-dockerhub'
+  - name: anchore_user
+    value: 'admin'
+  - name: anchore_url
+    value: 'http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1'
+  - group: AnchoreCreds
 
 
 # steps:
@@ -69,7 +76,7 @@ stages:
         curl -s https://ci-tools.anchore.io/inline_scan-v0.7.0 | bash -s -- \
           analyze \
           -u $(anchore_user) \
-          -p $(anchore_pass) \
+          -p $(anchorepass) \
           -r $(anchore_url) \
           -f ./Dockerfile \
           -g $(image):$(tag)
