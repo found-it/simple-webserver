@@ -101,7 +101,7 @@ stages:
 
 - stage: Production
   displayName: Push to production
-  dependsOn: Anchore
+  # dependsOn: Anchore
   jobs:
   - job: Production
     displayName: Push to production
