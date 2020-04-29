@@ -25,11 +25,22 @@ variables:
     value: '$(dockerRegistry)-staging'
   - name: dockerRegistryServiceConnection
     value: 'jpetersenames-dockerhub'
+
+    # Anchore stuff
   - name: anchore_user
     value: 'admin'
   - name: anchore_url
     value: 'http://mswscan-testjp.eastus.cloudapp.azure.com:8228/v1'
   - group: AnchoreCreds
+
+    # k8s stuff
+  - name: k8sImagePullSecret
+    value: 'demo-pull-secret'
+  - name: clusterName
+    value: 'demo'
+  - name: namespace
+    value: 'default'
+
 
 
 # steps:
@@ -90,6 +101,7 @@ stages:
 
 - stage: Production
   displayName: Push to production
+  dependsOn: Anchore
   jobs:
   - job: Production
     displayName: Push to production
@@ -104,4 +116,47 @@ stages:
         tags: |
           latest
 
+    - task: PublishPipelineArtifact@1
+      inputs:
+        artifactName: 'manifests'
+        path: 'manifests'
+
 # TODO: Deploy the app
+- stage: Deploy
+  displayName: Deploy to K8S
+  dependsOn: Production
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to k8s
+    environment: $(clusterName).default
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifactName: 'manifests'
+              downloadPath: '$(System.ArtifactsDirectory)/manifests'
+
+          - task: KubernetesManifest@0
+            displayName: Create secret to pull image
+            inputs:
+              action: createSecret
+              secretName: $(k8sImagePullSecret)
+              namespace: $(namespace)
+              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+              kubernetesServiceConnection: $(clusterName)
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to k8s
+            inputs:
+              action: deploy
+              namespace: $(namespace)
+              manifests: |
+                $(System.ArtifactsDirectory)/manifests/deploy.yaml
+                $(System.ArtifactsDirectory)/manifests/svc.yaml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(dockerRegistry):latest
+              kubernetesServiceConnection: $(clusterName)
