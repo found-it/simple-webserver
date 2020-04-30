@@ -1,6 +1,7 @@
 Dockerfile
 .git
 .gitignore
+azure-pipelines.yaml
 azure-pipelines.yml
 README.md
 .golang

@@ -46,7 +46,7 @@ variables:
 # Stages for Testing and Deployment
 stages:
 - stage: Testing
-  displayName: CI for Go
+  displayName: Build and Test Go
   jobs:
   - job: Golang
     displayName: Build and Test Go

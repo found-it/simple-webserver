@@ -8,6 +8,9 @@ import (
     "os"
 )
 
+//
+//  Handlers
+//
 func Green(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Green!")
 }
@@ -53,7 +56,9 @@ func GetIPs(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintln(w, "Pod: ", name)
 }
 
-
+//
+//  Entrypoint
+//
 func main() {
 
     http.HandleFunc("/", GetIPs)
