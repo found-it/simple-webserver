@@ -13,7 +13,7 @@ spec:
         app: demo
     spec:
       containers:
-      - name: flasky
+      - name: webserver
         image: jpetersenames/simple-webserver
         ports:
         - containerPort: 5000
