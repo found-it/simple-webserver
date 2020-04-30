@@ -2,7 +2,7 @@ FROM golang:alpine
 
 RUN apk update && apk add --no-cache git
 
-WORKDIR $GOPATH/src/ipserver
+WORKDIR $GOPATH/src/simple-server
 COPY ./src/ .
 COPY ./go.mod .
 
