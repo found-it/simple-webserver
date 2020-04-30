@@ -13,8 +13,11 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+    # Go Stuff
   - name: srcDirectory
     value: '$(System.DefaultWorkingDirectory)/src'
+
+    # Docker Stuff
   - name: tag
     value: $(Build.SourceVersion)
   - name: image
@@ -62,6 +65,7 @@ stages:
         workingDirectory: '$(srcDirectory)'
       displayName: Build the project
 
+      # TODO: Publish build artifact and consume for testing
     - task: Go@0
       inputs:
         command: 'test'
