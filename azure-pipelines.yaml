@@ -2,6 +2,7 @@
 #
 # Azure Pipeline for Anchore testing
 #
+# TODO: Auto update tag from git tag
 #
 
 ---

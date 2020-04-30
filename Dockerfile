@@ -25,6 +25,6 @@ ENV FLASK_APP=/app/app.py
 WORKDIR /app
 COPY . .
 
-EXPOSE 22
+# EXPOSE 22
 
 ENTRYPOINT ["flask", "run", "--host", "0.0.0.0"]
