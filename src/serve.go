@@ -6,6 +6,7 @@ import (
     "log"
     "net"
     "net/http"
+    "os"
 )
 
 func Green(w http.ResponseWriter, r *http.Request) {
@@ -43,9 +44,14 @@ func GetIPs(w http.ResponseWriter, r *http.Request) {
             if ip == nil {
                 continue
             }
-            fmt.Fprintln(w, ip.String())
+            fmt.Fprintln(w,"Node IP: ", ip.String())
         }
     }
+    name, err := os.Hostname()
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Fprintln(w, "Pod: ", name)
 }
 
 
