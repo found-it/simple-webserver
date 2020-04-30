@@ -18,7 +18,7 @@ variables:
   - name: tag
     value: '0.1.0'
   - name: image
-    value: 'ipserver'
+    value: 'simple-webserver'
   - name: dockerRegistry
     value: 'jpetersenames/$(image)'
   - name: stagingDockerRegistry
