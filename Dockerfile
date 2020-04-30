@@ -8,14 +8,14 @@ COPY ./go.mod .
 
 RUN go install -v .
 
-RUN addgroup --gid 2323 "foundit" && \
-    adduser --disabled-password \
-            --home "/home/foundit" \
-            --ingroup "foundit" \
-            --no-create-home \
-            --uid 2324 \
-            "foundit"
-
-USER foundit
+# RUN addgroup --gid 2323 "foundit" && \
+#     adduser --disabled-password \
+#             --home "/home/foundit" \
+#             --ingroup "foundit" \
+#             --no-create-home \
+#             --uid 2324 \
+#             "foundit"
+#
+# USER foundit
 
 ENTRYPOINT ["/go/bin/simple-webserver"]

@@ -1,7 +1,6 @@
 package main
 
 import (
-    "flag"
     "fmt"
     "log"
     "net"
@@ -44,7 +43,7 @@ func GetIPs(w http.ResponseWriter, r *http.Request) {
             if ip == nil {
                 continue
             }
-            fmt.Fprintln(w,"Node IP: ", ip.String())
+            fmt.Fprintln(w,"IP:  ", ip.String())
         }
     }
     name, err := os.Hostname()
@@ -56,9 +55,6 @@ func GetIPs(w http.ResponseWriter, r *http.Request) {
 
 
 func main() {
-    flag.Parse()
-
-    http.Handle("/images", http.FileServer(http.Dir("./images/")))
 
     http.HandleFunc("/", GetIPs)
     http.HandleFunc("/green", Green)
