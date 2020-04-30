@@ -16,7 +16,7 @@ variables:
   - name: srcDirectory
     value: '$(System.DefaultWorkingDirectory)/src'
   - name: tag
-    value: '0.1.0'
+    value: $(Build.SourceVersion)
   - name: image
     value: 'simple-webserver'
   - name: dockerRegistry
