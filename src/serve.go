@@ -10,7 +10,7 @@ import (
 )
 
 func Green(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "Green for dayz!")
+    fmt.Fprintf(w, "Green!")
 }
 
 func Blue(w http.ResponseWriter, r *http.Request) {
