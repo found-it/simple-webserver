@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: flasky
-        image: jpetersenames/flasky
+        image: jpetersenames/simple-webserver
         ports:
         - containerPort: 5000

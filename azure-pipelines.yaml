@@ -13,10 +13,12 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+  - name: srcDirectory
+    value: '$(System.DefaultWorkingDirectory)/src'
   - name: tag
     value: '0.1.0'
   - name: image
-    value: 'flasky'
+    value: 'ipserver'
   - name: dockerRegistry
     value: 'jpetersenames/$(image)'
   - name: stagingDockerRegistry
@@ -41,28 +43,31 @@ variables:
 
 
 
-# steps:
+# Stages for Testing and Deployment
 stages:
 - stage: Testing
-  displayName: CI for Python
+  displayName: CI for Go
   jobs:
-  - job: Testing
-    displayName: Test Application
+  - job: Golang
+    displayName: Build and Test Go
     steps:
-    - script: |
-        python3 -m pip install --upgrade pip setuptools wheel
-        python3 -m pip install --upgrade flask pylint
-        echo "##vso[task.prependpath]${PATH}:/home/vsts/.local/bin"
-      displayName: Install dependencies
+    - task: GoTool@0
+      inputs:
+        version: '1.14'
+      displayName: Download Go
 
-    - script: |
-        python3 app_test.py
-      displayName: Test the application
+    - task: Go@0
+      inputs:
+        command: 'build'
+        workingDirectory: '$(srcDirectory)'
+      displayName: Build the project
 
-    - script: |
-        pylint app.py
-      continueOnError: true
-      displayName: Lint the python app
+    - task: Go@0
+      inputs:
+        command: 'test'
+        arguments: '-v'
+        workingDirectory: '$(srcDirectory)'
+      displayName: Test the project
 
 - stage: Evaluate
   displayName: Scan Docker Image
