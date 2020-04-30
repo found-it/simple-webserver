@@ -23,7 +23,7 @@ func TestGreen(t *testing.T) {
         t.Logf("handler returned correct status code: %v", status)
     }
 
-    expected := `Green`
+    expected := `Green!`
     if w.Body.String() != expected {
         t.Errorf("handler returned unexpected body: got %v | want %v", w.Body.String(), expected)
     } else {
