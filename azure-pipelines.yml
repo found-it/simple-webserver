@@ -5,10 +5,15 @@ resources:
 - repo: self
 
 variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'jpetersenames-dockerhub'
+  # Production Registry Variables
+  productionServiceConnection: 'jpetersenames-dockerhub'
+  productionRegistry: 'jpetersenames'
+  # Staging Registry Variables
+  stagingServiceConnection: 'staging'
+  stagingRegistry: 'anchorestaging.azurecr.io'
+
   imageRepository: 'simpleserver'
-  containerRegistry: 'jpetersenames'
+
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
   
@@ -25,11 +30,12 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      displayName: Build and push an image to container registry
+      displayName: Build and push an image to staging registry
       inputs:
         command: buildAndPush
-        repository: $(containerRegistry)/$(imageRepository)
+        repository: $(stagingRegistry)/$(imageRepository)
         dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry: $(stagingServiceConnection)
         tags: |
           $(tag)
+
