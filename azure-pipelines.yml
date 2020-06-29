@@ -6,20 +6,41 @@ resources:
 
 variables:
   # Production Registry Variables
-  productionServiceConnection: 'jpetersenames-dockerhub'
-  productionRegistry: 'jpetersenames'
-  # Staging Registry Variables
-  stagingServiceConnection: 'staging'
-  stagingRegistry: 'anchorestaging.azurecr.io'
-  imageRepository: 'simpleserver'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: '$(Build.BuildId)'
-  vmImageName: 'ubuntu-latest'
+- name: productionServiceConnection
+  value: 'jpetersenames-dockerhub'
+- name: productionRegistry
+  value: 'jpetersenames'
+- name: productionImage
+  value: '$(productionRegistry)/$(imageRepository):$(tag)'
+- name: imageRepository
+  value: 'simpleserver'
+- name: dockerfilePath
+  value: '$(Build.SourcesDirectory)/Dockerfile'
+- name: tag
+  value: '$(Build.BuildId)'
+- name: vmImageName
+  value: 'ubuntu-latest'
+
+  # START NEW VARIABLES
+- name: stagingServiceConnection
+  value: 'staging'
+- name: stagingRegistry
+  value: 'anchorestaging.azurecr.io'
+- name: stagedImage
+  value: '$(stagingRegistry)/$(imageRepository):$(tag)'
+
+- name: anchore_user
+  value: 'admin'
+- name: anchore_url
+  value: 'http://40.78.124.168/v1/'
+- group: anchoreCredentials
+  # END NEW VARIABLES
+
 
 stages:
 - stage: Build
   displayName: Build and push stage
-  jobs:  
+  jobs:
   - job: Build
     displayName: Build
     pool:
@@ -37,16 +58,44 @@ stages:
 
 - stage: Security
   displayName: Security scan stage
-  jobs:  
+  jobs:
   - job: Security
     displayName: Security
     pool:
       vmImage: $(vmImageName)
     steps:
+    - script: python -m pip install --upgrade pip setuptools wheel anchorecli
+      displayName: Install Anchore CLI
+
     - script: |
-        pip install --upgrade anchorecli
         export PATH=$PATH:/home/vsts/.local/bin
         which anchore-cli
+        anchore-cli image add $(stagedImage) --dockerfile=$(dockerfilePath)
+        anchore-cli image wait $(stagedImage)
+        anchore-cli image vuln $(stagedImage) all
+        anchore-cli evaluate check $(stagedImage)
       displayName: Anchore Security Scan
+
+- stage: Production
+  displayName: Push to production
+  jobs:
+  - job: Production
+    displayName: Production
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - script: |
+        docker tag $(stagedImage) $(productionImage)
+      displayName: Tag the image as production
+
+    - task: Docker@2
+      displayName: Push the image to the production registry
+      inputs:
+        command: push
+        repository: $(productionRegistry)/$(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(productionServiceConnection)
+        tags: |
+          $(tag)
 
 
