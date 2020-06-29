@@ -1,0 +1,89 @@
+
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+- name: stagedImage
+  value: 'anchorestaging.azurecr.io/simpleserver:$(Build.BuildId)'
+- name: productionImage
+  value: 'jpetersenames/simpleserver:$(Build.BuildId)'
+
+  # Use a variable group to store the Anchore password
+- group: anchoreCredentials
+
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to staging registry
+      inputs:
+        command: buildAndPush
+        repository: simpleserver
+        dockerfile: Dockerfile
+        containerRegistry: staging
+        tags: |
+          $(Build.BuildId)
+
+
+- stage: Security
+  displayName: Security scan stage
+  jobs:
+  - job: Security
+    displayName: Security
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: python -m pip install --upgrade setuptools wheel anchorecli
+      displayName: Install Anchore CLI
+
+    - script: |
+        export PATH=$PATH:/home/vsts/.local/bin
+        export ANCHORE_CLI_USER=$(anchore_user)
+        export ANCHORE_CLI_PASS=$(anchore_pass)
+        export ANCHORE_CLI_URL=$(anchore_url)
+        anchore-cli image add $(stagedImage) --dockerfile=Dockerfile
+        anchore-cli image wait $(stagedImage)
+        anchore-cli image vuln $(stagedImage) all
+        anchore-cli evaluate check $(stagedImage)
+      displayName: Anchore Security Scan
+
+- stage: Production
+  displayName: Push to production
+  jobs:
+  - job: Production
+    displayName: Production
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: Login to staging registry
+      inputs:
+        command: login
+        containerRegistry: staging
+
+    - script: |
+        docker pull $(stagedImage)
+        docker tag $(stagedImage) $(productionImage)
+      displayName: Tag the image as production
+
+    - task: Docker@2
+      displayName: Push the image to the production registry
+      inputs:
+        command: push
+        repository: jpetersenames/simpleserver
+        dockerfile: Dockerfile
+        containerRegistry: production
+        tags: |
+          $(Build.BuildId)
+
+
