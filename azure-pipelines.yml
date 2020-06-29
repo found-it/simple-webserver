@@ -89,6 +89,7 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - script: |
+        docker pull $(stagedImage)
         docker tag $(stagedImage) $(productionImage)
       displayName: Tag the image as production
 
