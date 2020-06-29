@@ -6,37 +6,13 @@ resources:
 - repo: self
 
 variables:
-  # Production Registry Variables
-- name: productionServiceConnection
-  value: 'jpetersenames-dockerhub'
-- name: productionRegistry
-  value: 'jpetersenames'
-- name: productionImage
-  value: '$(productionRegistry)/$(imageRepository):$(tag)'
-
-- name: imageRepository
-  value: 'simpleserver'
-- name: dockerfilePath
-  value: '$(Build.SourcesDirectory)/Dockerfile'
-- name: tag
-  value: '$(Build.BuildId)'
-- name: vmImageName
-  value: 'ubuntu-latest'
-
-  # START NEW VARIABLES
-- name: stagingServiceConnection
-  value: 'staging'
-- name: stagingRegistry
-  value: 'anchorestaging.azurecr.io'
 - name: stagedImage
-  value: '$(stagingRegistry)/$(imageRepository):$(tag)'
+  value: 'anchorestaging.azurecr.io/simpleserver:$(Build.BuildId)'
+- name: productionImage
+  value: 'jpetersenames/simpleserver:$(Build.BuildId)'
 
-- name: anchore_user
-  value: 'admin'
-- name: anchore_url
-  value: 'http://40.78.124.168/v1/'
+  # Use a variable group to store the Anchore password
 - group: anchoreCredentials
-  # END NEW VARIABLES
 
 
 stages:
@@ -46,17 +22,18 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      vmImage: $(vmImageName)
+      vmImage: 'ubuntu-latest'
     steps:
     - task: Docker@2
       displayName: Build and push an image to staging registry
       inputs:
         command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(stagingServiceConnection)
+        repository: simpleserver
+        dockerfile: Dockerfile
+        containerRegistry: staging
         tags: |
-          $(tag)
+          $(Build.BuildId)
+
 
 - stage: Security
   displayName: Security scan stage
@@ -64,17 +41,17 @@ stages:
   - job: Security
     displayName: Security
     pool:
-      vmImage: $(vmImageName)
+      vmImage: 'ubuntu-latest'
     steps:
     - script: python -m pip install --upgrade pip setuptools wheel anchorecli
       displayName: Install Anchore CLI
 
     - script: |
         export PATH=$PATH:/home/vsts/.local/bin
-        export ANCHORE_CLI_USER=$(anchore_user)
+        export ANCHORE_CLI_USER=admin
         export ANCHORE_CLI_PASS=$(anchore_pass)
-        export ANCHORE_CLI_URL=$(anchore_url)
-        anchore-cli image add $(stagedImage) --dockerfile=$(dockerfilePath)
+        export ANCHORE_CLI_URL=http://40.78.124.168/v1/
+        anchore-cli image add $(stagedImage) --dockerfile=Dockerfile
         anchore-cli image wait $(stagedImage)
         anchore-cli image vuln $(stagedImage) all
         anchore-cli evaluate check $(stagedImage)
@@ -86,13 +63,13 @@ stages:
   - job: Production
     displayName: Production
     pool:
-      vmImage: $(vmImageName)
+      vmImage: 'ubuntu-latest'
     steps:
     - task: Docker@2
-      displayName: Login to ACR
+      displayName: Login to staging registry
       inputs:
         command: login
-        containerRegistry: $(stagingServiceConnection)
+        containerRegistry: staging
 
     - script: |
         docker pull $(stagedImage)
@@ -103,10 +80,10 @@ stages:
       displayName: Push the image to the production registry
       inputs:
         command: push
-        repository: $(productionRegistry)/$(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(productionServiceConnection)
+        repository: jpetersenames/simpleserver
+        dockerfile: Dockerfile
+        containerRegistry: production
         tags: |
-          $(tag)
+          $(Build.BuildId)
 
 
