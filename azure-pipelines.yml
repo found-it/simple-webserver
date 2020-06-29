@@ -88,6 +88,12 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: $(stagingServiceConnection)
+
     - script: |
         docker pull $(stagedImage)
         docker tag $(stagedImage) $(productionImage)
