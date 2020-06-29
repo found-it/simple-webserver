@@ -11,10 +11,6 @@ variables:
 - name: productionImage
   value: 'jpetersenames/simpleserver:$(Build.BuildId)'
 
-  # Use a variable group to store the Anchore password
-- group: anchoreCredentials
-
-
 stages:
 - stage: Build
   displayName: Build and push stage

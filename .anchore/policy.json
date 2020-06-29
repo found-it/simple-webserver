@@ -314,7 +314,7 @@
             },
             {
               "name": "check",
-              "value": "not_exists"
+              "value": "exists"
             },
             {
               "name": "actual_dockerfile_only",
