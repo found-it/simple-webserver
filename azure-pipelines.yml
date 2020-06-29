@@ -48,9 +48,9 @@ stages:
 
     - script: |
         export PATH=$PATH:/home/vsts/.local/bin
-        export ANCHORE_CLI_USER=admin
+        export ANCHORE_CLI_USER=$(anchore_user)
         export ANCHORE_CLI_PASS=$(anchore_pass)
-        export ANCHORE_CLI_URL=http://40.78.124.168/v1/
+        export ANCHORE_CLI_URL=$(anchore_url)
         anchore-cli image add $(stagedImage) --dockerfile=Dockerfile
         anchore-cli image wait $(stagedImage)
         anchore-cli image vuln $(stagedImage) all
