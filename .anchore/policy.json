@@ -1,0 +1,402 @@
+{
+  "blacklisted_images": [
+    {
+      "id": "a1cc2c7b-1e40-4f22-b42f-08db3c2532c1",
+      "image": {
+        "type": "tag",
+        "value": "*"
+      },
+      "name": "Blacklist Node Repository",
+      "registry": "docker.io",
+      "repository": "node"
+    }
+  ],
+  "description": "",
+  "id": "dc546beb-bab3-490c-b971-d3b532a7e1cc",
+  "last_updated": 1588362122,
+  "mappings": [
+    {
+      "id": "e23176ee-373d-412e-be5f-7926ce8625eb",
+      "image": {
+        "type": "tag",
+        "value": "*"
+      },
+      "name": "default",
+      "policy_ids": [
+        "4bae8d8b-9392-42fe-a644-4b3c9e912684",
+        "522a72bf-27cd-4091-b72f-99545b4c1a37",
+        "72cfa77a-c3ae-46e3-b065-7f4285ac6d91",
+        "87667c7a-55a4-4913-a229-ade934507b33",
+        "a6c7b7f3-705a-4f39-99f8-7e0f78fc2d02",
+        "daa8f540-9f40-4415-99ac-2bb62c100038"
+      ],
+      "registry": "*",
+      "repository": "*",
+      "whitelist_ids": [
+        "bb90cfc0-2998-481f-a608-41d24c7e0f60"
+      ]
+    }
+  ],
+  "name": "anchore-policy-blog",
+  "policies": [
+    {
+      "comment": "",
+      "id": "72cfa77a-c3ae-46e3-b065-7f4285ac6d91",
+      "name": "General Checks",
+      "rules": [
+        {
+          "action": "WARN",
+          "comment": "Warn on image size",
+          "gate": "metadata",
+          "id": "4254ff2a-0265-4040-95e3-187a0312630a",
+          "params": [
+            {
+              "name": "attribute",
+              "value": "size"
+            },
+            {
+              "name": "check",
+              "value": ">"
+            },
+            {
+              "name": "value",
+              "value": "125000"
+            }
+          ],
+          "trigger": "attribute"
+        },
+        {
+          "action": "WARN",
+          "comment": "Warn on presence of unapproved licenses",
+          "gate": "licenses",
+          "id": "b0ef730a-d06b-4538-94d2-e9436eb8a634",
+          "params": [
+            {
+              "name": "licenses",
+              "value": "GPLv2+, GPL-3+"
+            }
+          ],
+          "trigger": "blacklist_exact_match"
+        }
+      ],
+      "version": "1_0"
+    },
+    {
+      "comment": "",
+      "id": "a6c7b7f3-705a-4f39-99f8-7e0f78fc2d02",
+      "name": "File System Checks",
+      "rules": [
+        {
+          "action": "STOP",
+          "comment": "Blacklist wget package",
+          "gate": "packages",
+          "id": "0700ff0d-d07c-4712-8567-7f8ffed40767",
+          "params": [
+            {
+              "name": "name",
+              "value": "wget"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "WARN",
+          "comment": "Warn multiprotocol file transfer library",
+          "gate": "packages",
+          "id": "f793bff1-1efb-4248-a171-9541916f3bd2",
+          "params": [
+            {
+              "name": "name",
+              "value": "libcurl"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "STOP",
+          "comment": "Blacklist curl package",
+          "gate": "packages",
+          "id": "b37be980-c66f-4e31-a700-dc733ef21c94",
+          "params": [
+            {
+              "name": "name",
+              "value": "curl"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "STOP",
+          "comment": "Remove setuid and setgid permissions in the images",
+          "gate": "files",
+          "id": "9f72a410-4881-44b5-b11f-2ca9010a159c",
+          "params": [],
+          "trigger": "suid_or_guid_set"
+        },
+        {
+          "action": "STOP",
+          "comment": "Blacklist root user (uid 0)",
+          "gate": "passwd_file",
+          "id": "168d86f2-6457-43e6-9b16-576ad5c30d8c",
+          "params": [
+            {
+              "name": "user_ids",
+              "value": "0"
+            }
+          ],
+          "trigger": "blacklist_userids"
+        },
+        {
+          "action": "STOP",
+          "comment": "Blacklist ssh package",
+          "gate": "packages",
+          "id": "3f79e4f1-8c82-4161-906c-062417739e35",
+          "params": [
+            {
+              "name": "name",
+              "value": "openssh-server"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "WARN",
+          "comment": "Ensure openssh configuration files are absent from image",
+          "gate": "packages",
+          "id": "71b6e26c-a47a-4003-892e-e4716a46cebf",
+          "params": [
+            {
+              "name": "only_packages",
+              "value": "ssh"
+            },
+            {
+              "name": "only_directories",
+              "value": "/etc/sshd"
+            },
+            {
+              "name": "check",
+              "value": "missing"
+            }
+          ],
+          "trigger": "verify"
+        },
+        {
+          "action": "STOP",
+          "comment": "Enforce PID Limits",
+          "gate": "retrieved_files",
+          "id": "8915cc2b-0ebc-4f34-9948-96d3f0ace339",
+          "params": [
+            {
+              "name": "path",
+              "value": "/proc/sys/kernel/pid_max"
+            },
+            {
+              "name": "check",
+              "value": "match"
+            },
+            {
+              "name": "regex",
+              "value": "256"
+            }
+          ],
+          "trigger": "content_regex"
+        }
+      ],
+      "version": "1_0"
+    },
+    {
+      "comment": "Blacklist vulnerable packages",
+      "id": "4bae8d8b-9392-42fe-a644-4b3c9e912684",
+      "name": "Vulnerable Packages",
+      "rules": [
+        {
+          "action": "STOP",
+          "comment": "Django 1.11 before 1.11.29, 2.2 before 2.2.11, and 3.0 before 3.0.4 allows SQL Injection if untrusted data is used as a tolerance parameter in GIS functions and aggregates on Oracle.",
+          "gate": "packages",
+          "id": "0fce6d67-6e30-4cee-b47f-bb5704a9165e",
+          "params": [
+            {
+              "name": "name",
+              "value": "Django"
+            },
+            {
+              "name": "version",
+              "value": "2.2.3"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "STOP",
+          "comment": "A flaw was found in Mercurial before 4.9. It was possible to use symlinks and subrepositories to defeat Mercurial's path-checking logic and write files outside a repository",
+          "gate": "packages",
+          "id": "d8f50410-a184-4da1-b874-cda34b8ea96b",
+          "params": [
+            {
+              "name": "name",
+              "value": "mercurial"
+            },
+            {
+              "name": "version",
+              "value": "4.8.2"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "STOP",
+          "comment": "Python 2.7.x through 2.7.16 and 3.x through 3.7.2 is affected by: Improper Handling of Unicode Encoding (with an incorrect netloc) during NFKC normalization",
+          "gate": "packages",
+          "id": "7143047c-1e84-42fa-b790-2c0625df4702",
+          "params": [
+            {
+              "name": "name",
+              "value": "Python"
+            },
+            {
+              "name": "version",
+              "value": "2.7.16"
+            }
+          ],
+          "trigger": "blacklist"
+        }
+      ],
+      "version": "1_0"
+    },
+    {
+      "comment": "Blacklist malicious package types",
+      "id": "87667c7a-55a4-4913-a229-ade934507b33",
+      "name": "Malicious Packages",
+      "rules": [
+        {
+          "action": "STOP",
+          "comment": "Malicious library discovered [11.29.2019] typosquatting \"jellyfish\"",
+          "gate": "packages",
+          "id": "47394b2c-6619-4961-a383-c764f60bfcc1",
+          "params": [
+            {
+              "name": "name",
+              "value": "jeIlyfish"
+            }
+          ],
+          "trigger": "blacklist"
+        },
+        {
+          "action": "STOP",
+          "comment": "Malicious library discovered [11.29.2019] typosquatting python-dateutil",
+          "gate": "packages",
+          "id": "dfe5942b-f9f0-4e03-9b4f-db00d36eaeee",
+          "params": [
+            {
+              "name": "name",
+              "value": "python3-dateutil"
+            }
+          ],
+          "trigger": "blacklist"
+        }
+      ],
+      "version": "1_0"
+    },
+    {
+      "comment": "Dockerfile security checks",
+      "id": "daa8f540-9f40-4415-99ac-2bb62c100038",
+      "name": "Dockerfile Checks",
+      "rules": [
+        {
+          "action": "STOP",
+          "comment": "The \"COPY\" instruction should be used instead of \"ADD\"",
+          "gate": "dockerfile",
+          "id": "26b055af-7d22-49e2-a931-2413bf51741d",
+          "params": [
+            {
+              "name": "instruction",
+              "value": "ADD"
+            },
+            {
+              "name": "check",
+              "value": "not_exists"
+            },
+            {
+              "name": "actual_dockerfile_only",
+              "value": "false"
+            }
+          ],
+          "trigger": "instruction"
+        },
+        {
+          "action": "STOP",
+          "comment": "Blacklist SSH & Telnet ports",
+          "gate": "dockerfile",
+          "id": "fda7d129-7b40-4f9c-94dd-a520bbeb467e",
+          "params": [
+            {
+              "name": "ports",
+              "value": "22,23"
+            },
+            {
+              "name": "type",
+              "value": "blacklist"
+            },
+            {
+              "name": "actual_dockerfile_only",
+              "value": "false"
+            }
+          ],
+          "trigger": "exposed_ports"
+        },
+        {
+          "action": "STOP",
+          "comment": "Ensure dockerfile is provided during analysis",
+          "gate": "dockerfile",
+          "id": "e396aaeb-054b-4835-878a-cb3d0c4119e6",
+          "params": [],
+          "trigger": "no_dockerfile_provided"
+        },
+        {
+          "action": "STOP",
+          "comment": "Ensure a minimal base image is used",
+          "gate": "dockerfile",
+          "id": "b08b5b29-7d95-4055-9d29-deb8d58e891c",
+          "params": [
+            {
+              "name": "instruction",
+              "value": "FROM"
+            },
+            {
+              "name": "check",
+              "value": "="
+            },
+            {
+              "name": "value",
+              "value": "node:stretch-slim"
+            },
+            {
+              "name": "actual_dockerfile_only",
+              "value": "false"
+            }
+          ],
+          "trigger": "instruction"
+        }
+      ],
+      "version": "1_0"
+    },
+    {
+      "comment": "",
+      "id": "522a72bf-27cd-4091-b72f-99545b4c1a37",
+      "name": "DefaultPolicy",
+      "rules": [],
+      "version": "1_0"
+    }
+  ],
+  "version": "1_0",
+  "whitelisted_images": [],
+  "whitelists": [
+    {
+      "comment": "",
+      "id": "bb90cfc0-2998-481f-a608-41d24c7e0f60",
+      "items": [],
+      "name": "DefaultWhitelist",
+      "version": "1_0"
+    }
+  ]
+}
