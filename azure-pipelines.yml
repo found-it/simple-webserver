@@ -11,13 +11,9 @@ variables:
   # Staging Registry Variables
   stagingServiceConnection: 'staging'
   stagingRegistry: 'anchorestaging.azurecr.io'
-
   imageRepository: 'simpleserver'
-
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
-  
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 stages:
@@ -38,4 +34,19 @@ stages:
         containerRegistry: $(stagingServiceConnection)
         tags: |
           $(tag)
+
+- stage: Security
+  displayName: Security scan stage
+  jobs:  
+  - job: Security
+    displayName: Security
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - script: |
+        pip install --upgrade anchorecli
+        export PATH=$PATH:/home/vsts/.local/bin
+        which anchore-cli
+      displayName: Anchore Security Scan
+
 
