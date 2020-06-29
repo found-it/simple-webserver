@@ -12,7 +12,7 @@ variables:
   value: 'jpetersenames'
 - name: productionImage
   value: '$(productionRegistry)/$(imageRepository):$(tag)'
-  
+
 - name: imageRepository
   value: 'simpleserver'
 - name: dockerfilePath
@@ -51,7 +51,7 @@ stages:
       displayName: Build and push an image to staging registry
       inputs:
         command: buildAndPush
-        repository: $(stagingRegistry)/$(imageRepository)
+        repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(stagingServiceConnection)
         tags: |
