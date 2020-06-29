@@ -12,6 +12,7 @@ variables:
   value: 'jpetersenames'
 - name: productionImage
   value: '$(productionRegistry)/$(imageRepository):$(tag)'
+  
 - name: imageRepository
   value: 'simpleserver'
 - name: dockerfilePath
