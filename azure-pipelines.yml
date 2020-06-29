@@ -43,7 +43,7 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - script: python -m pip install --upgrade pip setuptools wheel anchorecli
+    - script: python -m pip install --upgrade setuptools wheel anchorecli
       displayName: Install Anchore CLI
 
     - script: |
